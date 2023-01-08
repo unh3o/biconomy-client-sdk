@@ -46,6 +46,6 @@ rm -rf packages/transak/yarn.lock
 rm -rf packages/transak/package-lock.json
 rm -rf packages/transak/dist
 
-#npx lerna bootstrap --force-local
-#npm run build
-#npm link
+npx lerna bootstrap --force-local
+npm run build
+npm link
