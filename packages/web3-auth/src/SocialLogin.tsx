@@ -15,10 +15,7 @@ import QRCodeModal from '@walletconnect/qrcode-modal'
 import NodeClient, { WhiteListSignatureResponse } from '@biconomy/node-client'
 
 import UI from './UI'
-import {
-  DefaultSocialLoginConfig,
-  WhiteLabelDataType
-} from './types/Web3AuthConfig'
+import { DefaultSocialLoginConfig, WhiteLabelDataType } from './types/Web3AuthConfig'
 
 function createLoginModal(socialLogin: SocialLogin) {
   const root = createRoot((document as any).getElementById('w3a-modal'))
@@ -80,8 +77,8 @@ class SocialLogin {
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
           chainId: finalDTO.chainId,
-          rpcTarget: finalDTO.rpcTarget,
-        },
+          rpcTarget: finalDTO.rpcTarget
+        }
       })
 
       const openloginAdapter = new OpenloginAdapter({
@@ -305,6 +302,6 @@ const getSocialLoginSDK = async (config?: any) => {
 }
 
 const socialLoginSDK: SocialLogin = new SocialLogin()
-  ; (window as any).socialLoginSDK = socialLoginSDK
+;(window as any).socialLoginSDK = socialLoginSDK
 
 export { socialLoginSDK, getSocialLoginSDK }
