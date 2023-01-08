@@ -2,10 +2,7 @@ export type DefaultSocialLoginConfig = {
   backendUrl: string
 }
 
-export type WhiteLabelDataType = {
-  name: string
-  logo: string
-}
+export type WhiteLabelDataType = any
 
 export type SocialLoginDTO = {
   chainId: string

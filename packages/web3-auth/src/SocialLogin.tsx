@@ -17,7 +17,6 @@ import NodeClient, { WhiteListSignatureResponse } from '@biconomy/node-client'
 import UI from './UI'
 import {
   DefaultSocialLoginConfig,
-  SocialLoginDTO,
   WhiteLabelDataType
 } from './types/Web3AuthConfig'
 
@@ -49,10 +48,6 @@ class SocialLogin {
       'BDtxlmCXNAWQFGiiaiVY3Qb1aN-d7DQ82OhT6B-RBr5j_rGnrKAqbIkvLJlf-ofYlJRiNSHbnkeHlsh8j3ueuYY'
     this.backendUrl = backendUrl
     this.nodeClient = new NodeClient({ txServiceUrl: this.backendUrl })
-    this.whiteLabel = {
-      name: 'Biconomy SDK',
-      logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9543.png'
-    }
   }
 
   async whitelistUrl(origin: string): Promise<string> {
@@ -63,18 +58,20 @@ class SocialLogin {
     return whiteListUrlResponse.data
   }
 
-  async init(socialLoginDTO?: Partial<SocialLoginDTO>) {
-    const finalDTO: SocialLoginDTO = {
+  async init(config?: any) {
+    const finalDTO: any = {
       chainId: '0x1',
       whitelistUrls: {},
       network: 'mainnet',
       whteLableData: this.whiteLabel
     }
-    if (socialLoginDTO) {
-      if (socialLoginDTO.chainId) finalDTO.chainId = socialLoginDTO.chainId
-      if (socialLoginDTO.network) finalDTO.network = socialLoginDTO.network
-      if (socialLoginDTO.whitelistUrls) finalDTO.whitelistUrls = socialLoginDTO.whitelistUrls
-      if (socialLoginDTO.whteLableData) this.whiteLabel = socialLoginDTO.whteLableData
+    if (config) {
+      if (config.initConfig) finalDTO.initConfig = config.initConfig
+      if (config.loginSettings) finalDTO.loginSettings = config.loginSettings
+      if (config.rpcTarget) finalDTO.rpcTarget = config.rpcTarget
+      if (config.chainId) finalDTO.chainId = config.chainId
+      if (config.network) finalDTO.network = config.network
+      if (config.whitelistUrls) finalDTO.whitelistUrls = config.whitelistUrls
     }
     try {
       console.log('SocialLogin init')
@@ -82,8 +79,9 @@ class SocialLogin {
         clientId: this.clientId,
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
-          chainId: finalDTO.chainId
-        }
+          chainId: finalDTO.chainId,
+          rpcTarget: finalDTO.rpcTarget,
+        },
       })
 
       const openloginAdapter = new OpenloginAdapter({
@@ -91,28 +89,24 @@ class SocialLogin {
           clientId: this.clientId,
           network: finalDTO.network,
           uxMode: 'popup',
-          whiteLabel: {
-            name: this.whiteLabel.name,
-            logoLight: this.whiteLabel.logo,
-            logoDark: this.whiteLabel.logo,
-            defaultLanguage: 'en',
-            dark: true
-          },
+          whiteLabel: this.whiteLabel,
           originData: finalDTO.whitelistUrls
-        }
-      })
-      const metamaskAdapter = new MetamaskAdapter({
-        clientId: this.clientId
-      })
-      const wcAdapter = new WalletConnectV1Adapter({
-        adapterSettings: {
-          qrcodeModal: QRCodeModal
-        }
+        },
+        loginSettings: finalDTO.loginSettings
       })
 
+      // const metamaskAdapter = new MetamaskAdapter({
+      //   clientId: this.clientId
+      // })
+      // const wcAdapter = new WalletConnectV1Adapter({
+      //   adapterSettings: {
+      //     qrcodeModal: QRCodeModal
+      //   }
+      // })
+      // web3AuthCore.configureAdapter(metamaskAdapter)
+      // web3AuthCore.configureAdapter(wcAdapter)
+
       web3AuthCore.configureAdapter(openloginAdapter)
-      web3AuthCore.configureAdapter(metamaskAdapter)
-      web3AuthCore.configureAdapter(wcAdapter)
       await web3AuthCore.init()
       this.web3auth = web3AuthCore
       if (web3AuthCore && web3AuthCore.provider) {
@@ -301,16 +295,16 @@ const defaultSocialLoginConfig: DefaultSocialLoginConfig = {
 export default SocialLogin
 
 let initializedSocialLogin: SocialLogin | null = null
-const getSocialLoginSDK = async (socialLoginDTO?: Partial<SocialLoginDTO>) => {
+const getSocialLoginSDK = async (config?: any) => {
   if (initializedSocialLogin) {
     return initializedSocialLogin
   }
-  await socialLoginSDK.init(socialLoginDTO)
+  await socialLoginSDK.init(config)
   initializedSocialLogin = socialLoginSDK
   return socialLoginSDK
 }
 
 const socialLoginSDK: SocialLogin = new SocialLogin()
-;(window as any).socialLoginSDK = socialLoginSDK
+  ; (window as any).socialLoginSDK = socialLoginSDK
 
 export { socialLoginSDK, getSocialLoginSDK }
